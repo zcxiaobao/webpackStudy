@@ -94,6 +94,7 @@ module.exports = {
     },
 }
 ```
+3. clean-webpack-plugin 清除以前打包的文件
 ### 4. loader常见配置
 
 ### 5.tree shaking

@@ -51,7 +51,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            filename: 'index.html',
+            filename: 'index[hash:5].html',
             template: './src/index.html',
             minify:{
                 // 清除注释
