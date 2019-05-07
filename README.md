@@ -50,18 +50,7 @@
     5. loader 
         >loader配置在module:{ rules: [{test: /\.less$/g, use: loaderName}]}
         1. 处理less文件
-            需要预下载style-loader css-loader less-loader less，
-            ```javascript
-            {test: /\.less$/g, use: ['style-loader','css-loader','less-loader']},
-            {test: /\.less$/g, use: [
-                {
-                    loader: 'style-loader',
-                    options: {
-
-                    }
-                },
-            ]},
-            ```
+            
 ### 3. plugin常用插件
 1. html-webpack-plugin 用于单独抽离html文件
 ```javascript
@@ -95,8 +84,87 @@ module.exports = {
 }
 ```
 3. clean-webpack-plugin 清除以前打包的文件
+```javascript
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+module.exports = {
+    plugins: [
+        new CleanWebpackPlugin()
+    ]
+}
+```
 ### 4. loader常见配置
+1. less / sass / css
+    >需要预下载style-loader css-loader less-loader less，
+    ```javascript
+        {test: /\.less$/g, use: ['style-loader','css-loader','less-loader']},
+        {test: /\.less$/g, use: [
+            {
+                loader: 'style-loader',
+                options: {
 
+                }
+            },
+        ]},
+    ```
+2. 图片
+    + html中img
+        - 使用html-loader进行处理
+        ```javascript
+        module.exports = {
+            module: {
+                rules: [
+                    {
+                        test: /\.html$/,
+                        use: [
+                            {
+                                loader: 'html-loader',
+                                options: {
+                                    attr: ['img:src']
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+        ```
+    + css中的img
+        - file-loader url-loader (url-loader能实现base64编码)
+        - img-loader 图片压缩
+        ```javascript
+        module.exports = {
+            module: {
+                rules: [
+                    {
+                        test: /\.(png|jpg|jpeg|gif|svg)$/,
+                        use:[
+                            {
+                                loader: 'url-loader',
+                                options: {
+                                    name: '[name][hash:5].[ext]',
+                                    /*图片小于10kb 使用base64进行编码*/
+                                    limit: 10 * 1000,
+                                    /*如果大于，则单独抽离为文件，文件路径 output输出路径下面img*/
+                                    outputPath: 'img'
+                                }
+                            },
+                            {
+                                loader: 'img-loader',
+                                options: {
+                                    plugins: [
+                                        /*需下载imagemin 和 imagemin-pngquant*/
+                                        require('imagemin-pngquant')({
+                                            quality: [0.3, 0.5]
+                                        })
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+        ```
 ### 5.tree shaking
 1. js
     - production 自带tree shaking，但是自带的tree shaking 只是做此法和语法的分析，不能进行作用域分析
@@ -169,3 +237,5 @@ module.exports = {
         }
     }
     ```
+### 7.提取公共js
+> 针对于多入口js
